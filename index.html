@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片处理工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>图片处理工具</h1>
+        
+        <!-- 图片上传区域 -->
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                <div class="upload-placeholder">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 10L12 15L17 10" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15V3" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>点击或拖拽图片到这里</p>
+                    <button id="uploadButton" class="upload-btn">选择图片</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预览区域 -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h2>已选择的图片</h2>
+                <button id="clearPreviewBtn" class="secondary-btn" disabled>清除所有图片</button>
+            </div>
+            <div class="selected-images" id="selectedImages"></div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <!-- 布局选择 -->
+            <div class="control-group">
+                <label>布局选择:</label>
+                <div class="layout-options">
+                    <button id="layout4" class="layout-btn active" data-grid="4">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <rect x="2" y="2" width="9" height="9" fill="currentColor"/>
+                            <rect x="13" y="2" width="9" height="9" fill="currentColor"/>
+                            <rect x="2" y="13" width="9" height="9" fill="currentColor"/>
+                            <rect x="13" y="13" width="9" height="9" fill="currentColor"/>
+                        </svg>
+                        <span>四宫格</span>
+                    </button>
+                    <button id="layout9" class="layout-btn" data-grid="9">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <rect x="2" y="2" width="6" height="6" fill="currentColor"/>
+                            <rect x="9" y="2" width="6" height="6" fill="currentColor"/>
+                            <rect x="16" y="2" width="6" height="6" fill="currentColor"/>
+                            <rect x="2" y="9" width="6" height="6" fill="currentColor"/>
+                            <rect x="9" y="9" width="6" height="6" fill="currentColor"/>
+                            <rect x="16" y="9" width="6" height="6" fill="currentColor"/>
+                            <rect x="2" y="16" width="6" height="6" fill="currentColor"/>
+                            <rect x="9" y="16" width="6" height="6" fill="currentColor"/>
+                            <rect x="16" y="16" width="6" height="6" fill="currentColor"/>
+                        </svg>
+                        <span>九宫格</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="gapSize">图片间距 (px):</label>
+                <input type="range" id="gapSize" min="0" max="30" value="10" class="slider">
+                <span id="gapSizeValue">10</span>
+            </div>
+
+            <!-- 设置保存 -->
+            <div class="settings-save">
+                <div class="settings-header">
+                    <h3>保存设置</h3>
+                    <div class="settings-buttons">
+                        <button id="saveSettings" class="secondary-btn">保存当前设置</button>
+                    </div>
+                </div>
+                <div class="settings-slots">
+                    <div class="settings-slot" data-slot="1">
+                        <span class="slot-name">设置 1</span>
+                        <button class="load-btn secondary-btn" style="display: none;">加载</button>
+                        <button class="delete-btn secondary-btn" style="display: none;">删除</button>
+                    </div>
+                    <div class="settings-slot" data-slot="2">
+                        <span class="slot-name">设置 2</span>
+                        <button class="load-btn secondary-btn" style="display: none;">加载</button>
+                        <button class="delete-btn secondary-btn" style="display: none;">删除</button>
+                    </div>
+                    <div class="settings-slot" data-slot="3">
+                        <span class="slot-name">设置 3</span>
+                        <button class="load-btn secondary-btn" style="display: none;">加载</button>
+                        <button class="delete-btn secondary-btn" style="display: none;">删除</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group font-upload">
+                <label>自定义字体:</label>
+                <div class="font-controls">
+                    <input type="file" id="fontFile" accept=".ttf" style="display: none;">
+                    <button id="fontUploadBtn" class="secondary-btn">上传字体文件</button>
+                    <div class="font-name-container">
+                        <span id="fontName">默认字体</span>
+                        <button id="clearFontBtn" class="secondary-btn" style="display: none;">清除字体</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-controls">
+                <div class="control-group">
+                    <label for="textTop">上方文字:</label>
+                    <input type="text" id="textTop" class="text-input" placeholder="输入上方文字">
+                </div>
+                
+                <div class="control-group">
+                    <label for="textBottom">下方文字:</label>
+                    <input type="text" id="textBottom" class="text-input" placeholder="输入下方文字">
+                </div>
+
+                <div class="control-group">
+                    <label for="fontSize">字体大小:</label>
+                    <input type="range" id="fontSize" min="20" max="100" value="40" class="slider">
+                    <span id="fontSizeValue">40px</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="textColor">文字颜色:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+
+                <div class="control-group">
+                    <label for="strokeColor">描边颜色:</label>
+                    <input type="color" id="strokeColor" value="#000000">
+                </div>
+
+                <div class="control-group">
+                    <label for="strokeWidth">描边宽度:</label>
+                    <input type="range" id="strokeWidth" min="0" max="10" value="2" class="slider">
+                    <span id="strokeWidthValue">2px</span>
+                </div>
+
+                <div class="control-group">
+                    <button id="clearTextBtn" class="secondary-btn">清除文字</button>
+                    <button id="applyTextBtn" class="primary-btn">应用文字</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="actions">
+            <button id="generateBtn" class="primary-btn" disabled>生成拼图</button>
+        </div>
+
+        <!-- 拼图预览区 -->
+        <div id="collageContainer">
+            <!-- 这里会动态添加拼图画布 -->
+        </div>
+
+        <!-- 下载按钮 -->
+        <div class="download-section" style="display: none;">
+            <button id="clearCollageBtn" class="secondary-btn">清除拼图</button>
+            <button id="downloadBtn" class="primary-btn">下载图片</button>
+        </div>
+    </div>
+
+    <!-- 预览模态框 -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose"></button>
+            <img id="modalImage" src="" alt="拼图预览">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
