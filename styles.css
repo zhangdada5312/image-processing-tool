@@ -521,4 +521,92 @@ input[type="color"]::-webkit-color-swatch {
 
 .settings-slot:not(.empty) .slot-name {
     font-weight: 500;
+}
+
+/* 文档转换区域样式 */
+.doc-conversion-section {
+    margin-bottom: 2rem;
+}
+
+.conversion-area {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.conversion-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.conversion-group:last-child {
+    margin-bottom: 0;
+}
+
+.conversion-group .upload-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.conversion-group .upload-btn svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.file-name {
+    color: #86868b;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+/* 转换状态样式 */
+.conversion-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f5f5f7;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e8e8ed;
+    border-top-color: #0071e3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.status-text {
+    color: #1d1d1f;
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 4px;
+    background-color: #e8e8ed;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: #0071e3;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 } 

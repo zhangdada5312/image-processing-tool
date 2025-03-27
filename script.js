@@ -21,6 +21,16 @@ const layoutConfig = {
     9: { size: 3, name: '九宫格' }
 };
 
+// 设置 PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// 文档转换相关的 DOM 元素
+const pdfInput = document.getElementById('pdfInput');
+const pdfUploadBtn = document.getElementById('pdfUploadBtn');
+const pdfFileName = document.getElementById('pdfFileName');
+const conversionStatus = document.getElementById('conversionStatus');
+const conversionProgress = document.getElementById('conversionProgress');
+
 /**
  * 从文件名中提取编号
  * 支持格式：
@@ -128,6 +138,10 @@ document.addEventListener('keydown', (e) => {
         closePreview();
     }
 });
+
+// 文档转换事件监听器
+pdfUploadBtn.addEventListener('click', () => pdfInput.click());
+pdfInput.addEventListener('change', handlePdfUpload);
 
 /**
  * 更新间距值显示
@@ -646,4 +660,107 @@ function clearFont() {
     clearFontBtn.style.display = 'none';
     fontFile.value = ''; // 清除文件输入
     generateCollages(); // 重新生成拼图
+}
+
+/**
+ * 处理 PDF 文件上传
+ */
+async function handlePdfUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    pdfFileName.textContent = file.name;
+    showConversionStatus('正在转换 PDF...');
+    
+    try {
+        const images = await convertPdfToImages(file);
+        handleConvertedImages(images, file.name);
+        hideConversionStatus();
+        pdfInput.value = ''; // 清除文件输入，允许重复选择相同文件
+    } catch (error) {
+        console.error('PDF 转换失败:', error);
+        alert('PDF 转换失败，请检查文件格式是否正确');
+        hideConversionStatus();
+    }
+}
+
+/**
+ * 转换 PDF 为图片
+ */
+async function convertPdfToImages(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const totalPages = pdf.numPages;
+    const images = [];
+    
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        // 更新进度
+        updateProgress((pageNum - 1) / totalPages * 100);
+        
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2.0 }); // 使用2.0倍缩放以获得更好的质量
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        await page.render({
+            canvasContext: context,
+            viewport: viewport
+        }).promise;
+        
+        // 将画布转换为图片
+        const img = new Image();
+        await new Promise((resolve) => {
+            img.onload = resolve;
+            img.src = canvas.toDataURL('image/jpeg', 0.95);
+        });
+        
+        images.push({
+            element: img,
+            originalName: `第${pageNum}页`,
+            number: pageNum
+        });
+    }
+    
+    updateProgress(100);
+    return images;
+}
+
+/**
+ * 处理转换后的图片
+ */
+function handleConvertedImages(images, fileName) {
+    // 添加到已有图片列表
+    selectedImages.push(...images);
+    updatePreview();
+    
+    // 自动生成拼图
+    if (selectedImages.length > 0) {
+        generateCollages();
+    }
+}
+
+/**
+ * 显示转换状态
+ */
+function showConversionStatus(text) {
+    conversionStatus.style.display = 'flex';
+    conversionStatus.querySelector('.status-text').textContent = text;
+    updateProgress(0);
+}
+
+/**
+ * 隐藏转换状态
+ */
+function hideConversionStatus() {
+    conversionStatus.style.display = 'none';
+}
+
+/**
+ * 更新进度条
+ */
+function updateProgress(percent) {
+    conversionProgress.style.width = `${percent}%`;
 } 
